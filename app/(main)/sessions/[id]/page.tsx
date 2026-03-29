@@ -1,16 +1,16 @@
+import { notFound } from "next/navigation";
+import { MOCK_SESSIONS, MOCK_STEPS } from "@/app/_lib/mock-data";
+import SessionPlayer from "./_components/SessionPlayer";
+
 export default async function SessionPlayerPage(
   props: PageProps<"/(main)/sessions/[id]">
 ) {
   const { id } = await props.params;
 
-  return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold text-gray-900">Session Player</h1>
-      <p className="text-sm text-gray-500">Session ID: {id}</p>
-      {/* Step-by-step player — coming in a later step */}
-      <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">
-        Session content coming soon
-      </div>
-    </div>
-  );
+  const session = MOCK_SESSIONS.find((s) => s.id === id);
+  const steps = MOCK_STEPS[id];
+
+  if (!session || !steps) notFound();
+
+  return <SessionPlayer session={session} steps={steps} />;
 }

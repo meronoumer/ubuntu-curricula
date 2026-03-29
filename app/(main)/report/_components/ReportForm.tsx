@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { saveReport } from "@/app/_lib/reports";
 import type { Session } from "@/app/_lib/mock-data";
-
+import { saveReport, syncPendingReports } from "@/app/_lib/reports";
 // ─── Engagement star picker ───────────────────────────────────────────────────
 
 function StarPicker({
@@ -168,7 +167,7 @@ export default function ReportForm({ sessions, preselectedSessionId }: Props) {
     if (!validate()) return;
 
     const session = sessions.find((s) => s.id === form.sessionId)!;
-    saveReport({
+    const report = saveReport({
       sessionId: form.sessionId,
       sessionTitle: session.title,
       attendees: parseInt(form.attendees, 10),
@@ -177,6 +176,8 @@ export default function ReportForm({ sessions, preselectedSessionId }: Props) {
       challenges: form.challenges.trim(),
       notes: form.notes.trim(),
     });
+
+    syncPendingReports();
 
     setSubmittedTitle(session.title);
   }

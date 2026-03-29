@@ -35,7 +35,7 @@ export type DbReport = {
   notes: string;
 };
 
-// ─── Client singleton ─────────────────────────────────────────────────────────
+// ─── Browser client singleton ─────────────────────────────────────────────────
 // Returns null when env vars are not configured so callers can
 // skip the sync gracefully instead of throwing.
 
@@ -51,4 +51,18 @@ export function getSupabaseClient() {
 
   _client = createClient(url, key);
   return _client;
+}
+
+// ─── Server client (fresh per call) ───────────────────────────────────────────
+// Use this in Server Components and Route Handlers. A fresh instance per call
+// avoids sharing state across requests in the same worker process.
+// Returns null when env vars are not configured.
+
+export function getSupabaseServerClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) return null;
+
+  return createClient(url, key);
 }

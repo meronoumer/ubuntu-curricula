@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Read(//c/Users/meron/OneDrive/Documents/ubuntu-curriculum/**)",
+      "Read(//c/Users/meron/OneDrive/Documents/ubuntu-curriculum/.next/types//**)"
     ]
   }
 }

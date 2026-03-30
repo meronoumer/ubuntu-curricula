@@ -1,8 +1,12 @@
 import { MOCK_SESSIONS } from "@/app/_lib/mock-data";
 import ReportForm from "./_components/ReportForm";
 
-export default async function ReportPage(props: PageProps<"/report">) {
-  const { sessionId } = await props.searchParams as { sessionId?: string };
+export default async function ReportPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sessionId?: string }>;
+}) {
+  const { sessionId } = await searchParams;
 
   // Only pre-select if the id actually exists in our data
   const preselected =

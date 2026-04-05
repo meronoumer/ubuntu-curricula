@@ -3,7 +3,13 @@
     "allow": [
       "Bash(npm install:*)",
       "Read(//c/Users/meron/OneDrive/Documents/ubuntu-curriculum/**)",
-      "Read(//c/Users/meron/OneDrive/Documents/ubuntu-curriculum/.next/types//**)"
+      "Read(//c/Users/meron/OneDrive/Documents/ubuntu-curriculum/.next/types//**)",
+      "Bash(grep -E '\\\\.\\(ts|tsx|js|jsx|json|env|prisma|sql|md\\)$')",
+      "Bash(find C:UsersmeronOneDriveDocumentsubuntu-curriculumnode_modulesnextdistdocs -type f -name *.md -o -name *.txt -o -name *.mdx)",
+      "Bash(find C:UsersmeronOneDriveDocumentsubuntu-curriculumnode_modulesnextdistdocs/01-app/03-api-reference -type f -name *.md)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -r \"middleware\\\\|Middleware\" C:UsersmeronOneDriveDocumentsubuntu-curriculumnode_modulesnextdistdocs/01-app --include=*.md)",
+      "Bash(npm list:*)"
     ]
   }
 }

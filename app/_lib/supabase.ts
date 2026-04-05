@@ -1,9 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
-// ─── Database types ───────────────────────────────────────────────────────────
+// ─── Shared database types ────────────────────────────────────────────────────
 // Mirrors the `reports` table in Supabase.
-//
-// Run this SQL in the Supabase SQL editor to create the table:
 //
 //   create table reports (
 //     id           uuid primary key,
@@ -18,7 +16,6 @@ import { createClient } from "@supabase/supabase-js";
 //     created_at   timestamptz not null default now()
 //   );
 //
-//   -- Allow anonymous inserts while auth is not yet wired:
 //   alter table reports enable row level security;
 //   create policy "Allow anon insert" on reports for insert with check (true);
 //   create policy "Allow anon select" on reports for select using (true);
@@ -35,34 +32,22 @@ export type DbReport = {
   notes: string;
 };
 
-// ─── Browser client singleton ─────────────────────────────────────────────────
-// Returns null when env vars are not configured so callers can
-// skip the sync gracefully instead of throwing.
+// ─── Browser client (Client Components only) ──────────────────────────────────
+// Safe to import from any Client Component ("use client" files).
+// Uses @supabase/ssr so the session is stored in cookies, making it visible
+// to the server-side clients in supabase-server.ts.
+// Singleton to avoid duplicate instances across re-renders.
 
-let _client: ReturnType<typeof createClient> | null = null;
+let _browserClient: ReturnType<typeof createBrowserClient> | null = null;
 
 export function getSupabaseClient() {
-  if (_client) return _client;
+  if (_browserClient) return _browserClient;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !key) return null;
 
-  _client = createClient(url, key);
-  return _client;
-}
-
-// ─── Server client (fresh per call) ───────────────────────────────────────────
-// Use this in Server Components and Route Handlers. A fresh instance per call
-// avoids sharing state across requests in the same worker process.
-// Returns null when env vars are not configured.
-
-export function getSupabaseServerClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !key) return null;
-
-  return createClient(url, key);
+  _browserClient = createBrowserClient(url, key);
+  return _browserClient;
 }

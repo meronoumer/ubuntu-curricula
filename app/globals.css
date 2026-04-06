@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
+/* ── Ubuntu Curriculum brand tokens ────────────────────────────────────────────
+   Use these as Tailwind arbitrary values, e.g. bg-[var(--color-cream)]
+   or reference them directly in any CSS rule below.
+   ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-green:  #1F4D3A;   /* primary — nav, buttons, hero overlay        */
+  --color-brown:  #7A5C3E;   /* secondary — labels, borders, muted accents  */
+  --color-yellow: #D9B44A;   /* accent — use sparingly: badges, highlights  */
+  --color-cream:  #F8F4EC;   /* main background                             */
+  --color-beige:  #EDE4D3;   /* alternate section background                */
+  --color-text:   #1F2937;   /* body copy                                   */
 }
 
+/* ── Tailwind theme extension ────────────────────────────────────────────────
+   Registers --font-sans and --font-heading so Tailwind utilities that
+   reference font-family variables pick them up correctly.
+   ─────────────────────────────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans:    var(--font-sans);
+  --font-heading: var(--font-heading);
+  --font-mono:    var(--font-geist-mono, monospace);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base styles ─────────────────────────────────────────────────────────────
+   Warm cream default instead of stark white.
+   No dark-mode override — the brand palette is intentionally warm and fixed.
+   ─────────────────────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Heading font ─────────────────────────────────────────────────────────────
+   Lora serif applied globally to h1–h4 so every page inherits the brand
+   typography without needing a per-component class.
+   Override with font-[family-name:var(--font-sans)] on any heading that
+   should stay sans-serif (e.g. the NavBar wordmark).
+   ─────────────────────────────────────────────────────────────────────────── */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading), Georgia, serif;
 }

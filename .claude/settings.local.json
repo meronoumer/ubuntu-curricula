@@ -9,7 +9,12 @@
       "Bash(find C:UsersmeronOneDriveDocumentsubuntu-curriculumnode_modulesnextdistdocs/01-app/03-api-reference -type f -name *.md)",
       "Bash(xargs grep:*)",
       "Bash(grep -r \"middleware\\\\|Middleware\" C:UsersmeronOneDriveDocumentsubuntu-curriculumnode_modulesnextdistdocs/01-app --include=*.md)",
-      "Bash(npm list:*)"
+      "Bash(npm list:*)",
+      "WebFetch(domain:unsplash.com)",
+      "WebFetch(domain:api.unsplash.com)",
+      "WebFetch(domain:www.pexels.com)",
+      "WebFetch(domain:www.flickr.com)",
+      "WebFetch(domain:images.unsplash.com)"
     ]
   }
 }

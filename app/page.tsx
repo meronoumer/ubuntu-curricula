@@ -166,8 +166,11 @@ export default function HomePage() {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              /* 📷 Replace with your own photography */
-              "url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1920&q=80')",
+              /* 📷 Replace with your own photography.
+               Current: students in a classroom, teacher at front (Unsplash, free licence).
+               To swap: visit unsplash.com/photos/5yQbJj68b_s (Hennie Stander, Thika Kenya),
+               right-click the photo → Open image in new tab, copy that URL. */
+              "url('https://webassets.oxfamamerica.org/media/images/16898lpr_9yo7.2e16d0ba.fill-1180x738-c100.jpegquality-60.jpg')",
           }}
           aria-hidden="true"
         />

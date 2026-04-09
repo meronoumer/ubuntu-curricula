@@ -1,4 +1,6 @@
-import { getSupabaseServerClient, type DbReport } from "@/app/_lib/supabase";
+import { redirect } from "next/navigation";
+import { type DbReport } from "@/app/_lib/supabase";
+import { getSupabaseServerClient } from "@/app/_lib/supabase-server";
 import StatsBar from "./_components/StatsBar";
 import ReportCard, { type DisplayReport } from "./_components/ReportCard";
 import LocalReportsFallback from "./_components/LocalReportsFallback";
@@ -6,7 +8,7 @@ import LocalReportsFallback from "./_components/LocalReportsFallback";
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
 async function fetchReports(): Promise<DbReport[] | null> {
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase
@@ -49,6 +51,18 @@ function groupBySession(reports: DbReport[]): Map<string, DbReport[]> {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function AdminPage() {
+  // Defense-in-depth: the proxy already redirects non-admins, but we
+  // double-check here so the page is safe even if the proxy is bypassed.
+  const supabase = await getSupabaseServerClient();
+  if (supabase) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user || user.user_metadata?.role !== "admin") {
+      redirect("/sessions");
+    }
+  }
+
   const reports = await fetchReports();
 
   // Supabase not configured — hand off to the client-side localStorage fallback

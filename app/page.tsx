@@ -146,7 +146,7 @@ export default function HomePage() {
             href="/login"
             className="text-sm font-semibold text-[#F8F4EC] bg-[#1F4D3A] px-5 py-2 rounded-lg hover:bg-[#2a6350] transition-colors"
           >
-            Facilitator Login
+            Sign In
           </Link>
         </div>
       </header>
@@ -198,17 +198,19 @@ export default function HomePage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
+                {/* Facilitator: lands on /sessions after login */}
                 <Link
                   href="/login"
                   className="inline-flex items-center justify-center gap-2 bg-[#D9B44A] text-[#1F2937] px-7 py-3.5 rounded-lg text-sm font-semibold hover:bg-[#c9a43a] transition-colors"
                 >
                   Facilitator Login
                 </Link>
+                {/* Admin: same login page — role check redirects to /admin */}
                 <Link
-                  href="/sessions"
+                  href="/login"
                   className="inline-flex items-center justify-center gap-2 bg-white/15 border border-white/30 text-white px-7 py-3.5 rounded-lg text-sm font-semibold hover:bg-white/25 transition-colors backdrop-blur-sm"
                 >
-                  Explore Platform →
+                  Admin Login
                 </Link>
               </div>
 

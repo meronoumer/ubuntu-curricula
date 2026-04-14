@@ -33,7 +33,7 @@ function StarPicker({
           </button>
         ))}
       </div>
-      <p className="text-xs text-gray-400 h-4">
+      <p className="text-xs text-[#7A5C3E]/60 h-4">
         {labels[hovered || value]}
       </p>
     </div>
@@ -55,18 +55,18 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-[#1F2937]">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
-      {hint && <p className="text-xs text-gray-400">{hint}</p>}
+      {hint && <p className="text-xs text-[#1F2937]/40">{hint}</p>}
       {children}
     </div>
   );
 }
 
 const inputClass =
-  "w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition";
+  "w-full rounded-xl border border-[#EDE4D3] bg-white px-3 py-2.5 text-sm text-[#1F2937] placeholder:text-[#1F2937]/25 focus:border-[#1F4D3A] focus:outline-none focus:ring-2 focus:ring-[#1F4D3A]/10 transition";
 
 const textareaClass = inputClass + " resize-none";
 
@@ -81,26 +81,26 @@ function SuccessScreen({
 }) {
   return (
     <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1F4D3A]/10 text-2xl text-[#1F4D3A]">
         ✓
       </div>
       <div className="space-y-1">
-        <h2 className="text-lg font-bold text-gray-900">Report submitted!</h2>
-        <p className="text-sm text-gray-500 max-w-xs">
-          Your report for <span className="font-medium">{sessionTitle}</span> has
+        <h2 className="text-lg font-semibold text-[#1F2937]">Report submitted!</h2>
+        <p className="text-sm text-[#1F2937]/50 max-w-xs">
+          Your report for <span className="font-medium text-[#1F2937]">{sessionTitle}</span> has
           been saved locally and will sync when you are back online.
         </p>
       </div>
       <div className="flex flex-col gap-3 w-full max-w-xs">
         <a
           href="/sessions"
-          className="rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white text-center hover:bg-indigo-700 transition-colors"
+          className="rounded-xl bg-[#1F4D3A] px-4 py-3 text-sm font-semibold text-white text-center hover:bg-[#173d2e] transition-colors"
         >
           Back to sessions
         </a>
         <button
           onClick={onAnother}
-          className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          className="rounded-xl border border-[#EDE4D3] px-4 py-3 text-sm font-medium text-[#7A5C3E] hover:bg-[#EDE4D3]/50 transition-colors"
         >
           Submit another report
         </button>
@@ -199,13 +199,13 @@ export default function ReportForm({ sessions, preselectedSessionId }: Props) {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Submit Report</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-xl font-semibold text-[#1F2937]">Submit Report</h1>
+        <p className="mt-1 text-sm text-[#1F2937]/50">
           Record attendance, engagement, and notes for your session.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-white shadow-sm border border-gray-100 p-5 space-y-5">
+      <div className="rounded-2xl bg-white border border-[#EDE4D3] p-5 space-y-5">
 
         {/* Session selector */}
         <Field label="Session" required>
@@ -310,7 +310,7 @@ export default function ReportForm({ sessions, preselectedSessionId }: Props) {
 
       <button
         type="submit"
-        className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
+        className="w-full rounded-xl bg-[#1F4D3A] px-4 py-3 text-sm font-semibold text-white hover:bg-[#173d2e] transition-colors"
       >
         Submit Report
       </button>

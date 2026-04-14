@@ -2,9 +2,9 @@ import Link from "next/link";
 import { MOCK_SESSIONS, type Session, type SessionStatus } from "@/app/_lib/mock-data";
 
 const STATUS_STYLES: Record<SessionStatus, string> = {
-  "upcoming":    "bg-blue-50 text-blue-700",
-  "in-progress": "bg-amber-50 text-amber-700",
-  "completed":   "bg-green-50 text-green-700",
+  "upcoming":    "bg-[#EDE4D3] text-[#7A5C3E]",
+  "in-progress": "bg-[#D9B44A]/20 text-[#7A5C3E]",
+  "completed":   "bg-[#1F4D3A]/10 text-[#1F4D3A]",
 };
 
 const STATUS_LABELS: Record<SessionStatus, string> = {
@@ -27,10 +27,10 @@ function SessionCard({ session }: { session: Session }) {
   return (
     <Link
       href={`/sessions/${session.id}`}
-      className="block rounded-2xl bg-white shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow"
+      className="block rounded-2xl bg-white border border-[#EDE4D3] p-4 hover:border-[#1F4D3A]/30 hover:shadow-sm transition-all"
     >
       <div className="flex items-start justify-between gap-2">
-        <h2 className="font-semibold text-gray-900 text-sm leading-snug">
+        <h2 className="font-semibold text-[#1F2937] text-sm leading-snug">
           {session.title}
         </h2>
         <span
@@ -40,22 +40,22 @@ function SessionCard({ session }: { session: Session }) {
         </span>
       </div>
 
-      <p className="mt-1.5 text-xs text-gray-500 line-clamp-2">
+      <p className="mt-1.5 text-xs text-[#1F2937]/50 line-clamp-2">
         {session.description}
       </p>
 
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#1F2937]/40">
         <span>{formatDate(session.date)}</span>
         <span>{session.location}</span>
         <span>{session.facilitator}</span>
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs text-gray-400">
+      <div className="mt-3 flex items-center justify-between text-xs text-[#1F2937]/40">
         <span>{session.totalSteps} steps</span>
         {isCompleted ? (
-          <span className="text-green-600 font-medium">Done</span>
+          <span className="text-[#1F4D3A] font-medium">Done ✓</span>
         ) : (
-          <span className="text-indigo-600 font-medium">Open →</span>
+          <span className="text-[#7A5C3E] font-medium">Open →</span>
         )}
       </div>
     </Link>
@@ -69,11 +69,11 @@ export default function SessionsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-gray-900">Sessions</h1>
+      <h1 className="text-xl font-semibold text-[#1F2937]">Sessions</h1>
 
       {active.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-[#7A5C3E]">
             In Progress
           </h2>
           {active.map((s) => <SessionCard key={s.id} session={s} />)}
@@ -82,7 +82,7 @@ export default function SessionsPage() {
 
       {upcoming.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-[#7A5C3E]">
             Upcoming
           </h2>
           {upcoming.map((s) => <SessionCard key={s.id} session={s} />)}
@@ -91,7 +91,7 @@ export default function SessionsPage() {
 
       {completed.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-[#7A5C3E]">
             Completed
           </h2>
           {completed.map((s) => <SessionCard key={s.id} session={s} />)}

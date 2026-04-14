@@ -35,10 +35,10 @@ export default function NavBar({ isAdmin, userEmail }: NavBarProps) {
   const roleLabel = isAdmin ? "Admin" : "Facilitator";
 
   return (
-    <nav className="bg-indigo-700 text-white px-4 py-3 flex items-center justify-between gap-4">
+    <nav className="bg-[#1F4D3A] text-white px-4 py-3 flex items-center justify-between gap-4">
 
       {/* Brand */}
-      <span className="font-bold tracking-wide text-sm shrink-0">
+      <span className="font-bold tracking-wide text-sm shrink-0 font-[var(--font-heading)]">
         Ubuntu Curriculum
       </span>
 
@@ -50,8 +50,8 @@ export default function NavBar({ isAdmin, userEmail }: NavBarProps) {
             href={href}
             className={
               pathname.startsWith(href)
-                ? "font-semibold underline underline-offset-4"
-                : "opacity-80 hover:opacity-100 transition-opacity"
+                ? "font-semibold underline underline-offset-4 decoration-[#D9B44A]"
+                : "opacity-70 hover:opacity-100 transition-opacity"
             }
           >
             {label}
@@ -63,18 +63,18 @@ export default function NavBar({ isAdmin, userEmail }: NavBarProps) {
       {userEmail && (
         <div className="flex items-center gap-3 text-sm shrink-0">
           {/* Avatar initial */}
-          <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold">
+          <div className="w-7 h-7 rounded-full bg-[#2d6b52] flex items-center justify-center text-xs font-bold">
             {initial}
           </div>
 
           {/* Name + role badge */}
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-indigo-100 text-xs">{displayName}</span>
+            <span className="text-white/70 text-xs">{displayName}</span>
             <span
               className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                 isAdmin
-                  ? "bg-amber-400 text-amber-900"
-                  : "bg-indigo-500 text-white"
+                  ? "bg-[#D9B44A] text-[#1F2937]"
+                  : "bg-[#EDE4D3] text-[#7A5C3E]"
               }`}
             >
               {roleLabel}
@@ -82,12 +82,12 @@ export default function NavBar({ isAdmin, userEmail }: NavBarProps) {
           </div>
 
           {/* Divider */}
-          <span className="border-l border-indigo-500 h-4" />
+          <span className="border-l border-white/20 h-4" />
 
           {/* Sign out */}
           <button
             onClick={handleSignOut}
-            className="text-indigo-200 hover:text-white transition-colors text-xs"
+            className="text-white/60 hover:text-white transition-colors text-xs"
           >
             Sign out
           </button>

@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { fidelityColour } from "@/app/_lib/fidelity";
 
 // Shared display shape — accepted by both the Supabase path and the local fallback
 export type DisplayReport = {
   id: string;
   sessionTitle: string;
   submittedAt: string;
-  submittedBy?: string;  // email of the facilitator; optional for backwards compat
+  submittedBy?: string;      // email of the facilitator; optional for backwards compat
   attendees: number;
-  engagement: number;    // 1–5
+  engagement: number;        // 1–5
   highlights: string;
   challenges: string;
   notes: string;
+  fidelityScore?: number;    // 0–100; absent for reports submitted before fidelity tracking
   synced?: boolean;
 };
 
@@ -80,13 +82,23 @@ export default function ReportCard({ report }: { report: DisplayReport }) {
         {/* Engagement */}
         <Stars value={report.engagement} />
 
+        {/* Fidelity badge */}
+        {report.fidelityScore !== undefined && (() => {
+          const { bg, text } = fidelityColour(report.fidelityScore);
+          return (
+            <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${bg} ${text}`}>
+              {report.fidelityScore}%
+            </span>
+          );
+        })()}
+
         {/* Sync badge */}
         {report.synced !== undefined && (
           <span
             className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
               report.synced
-                ? "bg-green-50 text-green-600"
-                : "bg-amber-50 text-amber-600"
+                ? "bg-[#1F4D3A]/10 text-[#1F4D3A]"
+                : "bg-[#D9B44A]/10 text-[#7A5C3E]"
             }`}
           >
             {report.synced ? "Synced" : "Pending"}

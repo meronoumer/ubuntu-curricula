@@ -4,14 +4,15 @@ export type Report = {
   id: string;
   sessionId: string;
   sessionTitle: string;
-  submittedAt: string;   // ISO datetime string
-  submittedBy: string;   // email of the facilitator who submitted
+  submittedAt: string;      // ISO datetime string
+  submittedBy: string;      // email of the facilitator who submitted
   attendees: number;
-  engagement: number;    // 1–5
+  engagement: number;       // 1–5
   highlights: string;
   challenges: string;
   notes: string;
-  synced: boolean;       // true once uploaded to Supabase
+  fidelityScore?: number;   // 0–100, computed from step-level tracking
+  synced: boolean;          // true once uploaded to Supabase
 };
 
 const STORAGE_KEY = "uf_reports";
@@ -65,16 +66,17 @@ export function markReportsSynced(ids: string[]) {
 
 function toDbReport(r: Report): DbReport {
   return {
-    id:            r.id,
-    session_id:    r.sessionId,
-    session_title: r.sessionTitle,
-    submitted_at:  r.submittedAt,
-    submitted_by:  r.submittedBy ?? null,
-    attendees:     r.attendees,
-    engagement:    r.engagement,
-    highlights:    r.highlights,
-    challenges:    r.challenges,
-    notes:         r.notes,
+    id:             r.id,
+    session_id:     r.sessionId,
+    session_title:  r.sessionTitle,
+    submitted_at:   r.submittedAt,
+    submitted_by:   r.submittedBy ?? null,
+    attendees:      r.attendees,
+    engagement:     r.engagement,
+    highlights:     r.highlights,
+    challenges:     r.challenges,
+    notes:          r.notes,
+    fidelity_score: r.fidelityScore ?? null,
   };
 }
 

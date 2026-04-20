@@ -3,18 +3,20 @@ import { createBrowserClient } from "@supabase/ssr";
 // ─── Shared database types ────────────────────────────────────────────────────
 // Mirrors the `reports` table in Supabase.
 //
+// Example schema:
 //   create table reports (
-//     id           uuid primary key,
-//     session_id   text        not null,
-//     session_title text       not null,
-//     submitted_at timestamptz not null,
-//     submitted_by text,
-//     attendees    int         not null,
-//     engagement   int         not null check (engagement between 1 and 5),
-//     highlights   text        not null,
-//     challenges   text        not null,
-//     notes        text        not null default '',
-//     created_at   timestamptz not null default now()
+//     id            uuid primary key,
+//     session_id    text        not null,
+//     session_title text        not null,
+//     submitted_at  timestamptz not null,
+//     submitted_by  text,
+//     attendees     int         not null,
+//     engagement    int         not null check (engagement between 1 and 5),
+//     highlights    text        not null,
+//     challenges    text        not null,
+//     notes         text        not null default '',
+//     fidelity_score int,
+//     created_at    timestamptz not null default now()
 //   );
 //
 //   alter table reports enable row level security;
@@ -26,15 +28,27 @@ import { createBrowserClient } from "@supabase/ssr";
 export type DbSession = {
   id: string;
   title: string;
-  description: string;
-  date: string;           // ISO date string (YYYY-MM-DD)
-  location: string;
-  assigned_to: string;    // facilitator email
-  template_id: string | null;  // maps to a MOCK_STEPS key
-  status: "upcoming" | "in-progress" | "completed";
-  started_at: string | null;
-  completed_at: string | null;
-  created_at: string;
+  description: string | null;
+  date: string; // ISO date string (YYYY-MM-DD)
+  location: string | null;
+
+  // Current preferred field
+  assigned_to: string | null;
+
+  // Legacy / transitional field from earlier SQL
+  facilitator_email?: string | null;
+
+  // Maps to a MOCK_STEPS key
+  template_id: string | null;
+
+  // Keep this flexible while the DB stabilizes
+  status: "upcoming" | "in-progress" | "completed" | string;
+
+  // Optional because these may not yet exist in the table
+  started_at?: string | null;
+  completed_at?: string | null;
+
+  created_at?: string | null;
 };
 
 export type DbReport = {
@@ -48,6 +62,7 @@ export type DbReport = {
   highlights: string;
   challenges: string;
   notes: string;
+  fidelity_score: number | null; // 0–100
 };
 
 // ─── Browser client (Client Components only) ──────────────────────────────────

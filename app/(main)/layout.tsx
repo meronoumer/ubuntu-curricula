@@ -20,7 +20,7 @@ export default async function MainLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#F8F4EC]">
       <NavBar isAdmin={isAdmin} userEmail={userEmail} />
       <SyncProvider>
         <main className="flex-1 px-4 py-6 max-w-2xl mx-auto w-full">

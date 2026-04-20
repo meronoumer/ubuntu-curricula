@@ -36,6 +36,11 @@ export default function StatsBar({ reports }: Props) {
     (reports.reduce((sum, r) => sum + r.engagement, 0) / reports.length).toFixed(1);
   const uniqueSessions = new Set(reports.map((r) => r.session_id)).size;
 
+  const fidelityReports = reports.filter((r) => r.fidelity_score !== null && r.fidelity_score !== undefined);
+  const avgFidelity = fidelityReports.length > 0
+    ? Math.round(fidelityReports.reduce((sum, r) => sum + (r.fidelity_score ?? 0), 0) / fidelityReports.length)
+    : null;
+
   // Best session: highest average engagement across its reports
   const bySession = new Map<string, number[]>();
   for (const r of reports) {
@@ -67,7 +72,15 @@ export default function StatsBar({ reports }: Props) {
           value={`${avgEngagement} / 5`}
           sub={`across ${reports.length} reports`}
         />
-        <StatCard label="Sessions" value={uniqueSessions} sub="unique modules run" />
+        {avgFidelity !== null ? (
+          <StatCard
+            label="Avg fidelity"
+            value={`${avgFidelity}%`}
+            sub={`${fidelityReports.length} tracked session${fidelityReports.length !== 1 ? "s" : ""}`}
+          />
+        ) : (
+          <StatCard label="Sessions" value={uniqueSessions} sub="unique modules run" />
+        )}
       </div>
 
       {/* Best session highlight */}

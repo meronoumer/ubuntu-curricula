@@ -38,6 +38,7 @@ function toDisplay(r: DbReport): DisplayReport {
     highlights: r.highlights,
     challenges: r.challenges,
     notes: r.notes,
+    fidelityScore: r.fidelity_score ?? undefined,
   };
 }
 

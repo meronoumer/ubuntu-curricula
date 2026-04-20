@@ -5,6 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Session, Step, StepType } from "@/app/_lib/mock-data";
 import { getSupabaseClient } from "@/app/_lib/supabase";
+import {
+  saveFidelity,
+  computeFidelityScore,
+  fidelityLabel,
+  fidelityColour,
+  type StepFidelityRecord,
+} from "@/app/_lib/fidelity";
+import StepConfirmation, { type StepOutcome } from "./StepConfirmation";
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
@@ -92,9 +100,24 @@ function FacilitatorNote({ note }: { note: string }) {
   );
 }
 
-function CompletionScreen({ session }: { session: Session }) {
+// ─── Completion screen ────────────────────────────────────────────────────────
+
+function CompletionScreen({
+  session,
+  fidelityScore,
+  completedSteps,
+  totalSteps,
+}: {
+  session: Session;
+  fidelityScore: number;
+  completedSteps: number;
+  totalSteps: number;
+}) {
+  const { bg, text } = fidelityColour(fidelityScore);
+  const label = fidelityLabel(fidelityScore);
+
   return (
-    <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
+    <div className="flex flex-col items-center justify-center gap-6 py-12 text-center">
       <div className="w-16 h-16 rounded-full bg-[#1F4D3A]/10 flex items-center justify-center text-2xl text-[#1F4D3A]">
         ✓
       </div>
@@ -102,12 +125,47 @@ function CompletionScreen({ session }: { session: Session }) {
         <h2 className="text-lg font-semibold text-[#1F2937]">Session complete!</h2>
         <p className="text-sm text-[#1F2937]/50">{session.title}</p>
       </div>
+
+      {/* Fidelity score */}
+      <div className="w-full max-w-xs rounded-2xl border border-[#EDE4D3] bg-white p-5 space-y-3 text-left">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#7A5C3E]">
+            Session fidelity
+          </p>
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${bg} ${text}`}>
+            {label}
+          </span>
+        </div>
+
+        {/* Score bar */}
+        <div className="space-y-1.5">
+          <div className="flex items-end justify-between">
+            <span className="text-3xl font-bold text-[#1F2937]">{fidelityScore}%</span>
+            <span className="text-xs text-[#1F2937]/40 pb-1">
+              {completedSteps} of {totalSteps} steps
+            </span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-[#EDE4D3]">
+            <div
+              className="h-2 rounded-full bg-[#1F4D3A] transition-all duration-500"
+              style={{ width: `${fidelityScore}%` }}
+            />
+          </div>
+        </div>
+
+        {completedSteps < totalSteps && (
+          <p className="text-xs text-[#1F2937]/40">
+            {totalSteps - completedSteps} step{totalSteps - completedSteps !== 1 ? "s" : ""} skipped
+          </p>
+        )}
+      </div>
+
       <p className="max-w-xs text-sm text-[#1F2937]/50">
-        All {session.totalSteps} steps finished. Submit your attendance and
-        engagement report before you leave.
+        Submit your attendance and engagement report before you leave.
       </p>
+
       <Link
-        href={`/report?sessionId=${session.id}`}
+        href={`/report?sessionId=${session.id}&fidelityScore=${fidelityScore}`}
         className="rounded-xl bg-[#1F4D3A] px-6 py-3 text-sm font-semibold text-white hover:bg-[#173d2e] transition-colors"
       >
         Submit Report
@@ -120,8 +178,6 @@ function CompletionScreen({ session }: { session: Session }) {
 }
 
 // ─── Start gate ───────────────────────────────────────────────────────────────
-// Shown for upcoming sessions so the facilitator explicitly kicks off the session
-// and the status is written to Supabase before the steps begin.
 
 function StartGate({
   session,
@@ -154,8 +210,6 @@ function StartGate({
       }
     }
 
-    // Refresh server data so the sessions list reflects the new status,
-    // then proceed to the step player.
     router.refresh();
     onStart();
   }
@@ -184,14 +238,12 @@ function StartGate({
           Ready to begin?
         </p>
         <p className="text-sm text-[#1F2937]/60 leading-relaxed">
-          This session has {session.totalSteps} steps. Starting will mark it as in-progress
-          so your program manager can track live session delivery.
+          This session has {session.totalSteps} steps. Starting will mark it as
+          in-progress so your program manager can track live delivery.
         </p>
       </div>
 
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button
         onClick={handleStart}
@@ -209,19 +261,24 @@ function StartGate({
 type Props = {
   session: Session;
   steps: Step[];
-  sessionDbId?: string;                                   // Supabase UUID (absent for mock sessions)
-  initialStatus?: "upcoming" | "in-progress" | "completed"; // passed from page
+  sessionDbId?: string;
+  initialStatus?: "upcoming" | "in-progress" | "completed";
 };
 
 export default function SessionPlayer({ session, steps, sessionDbId, initialStatus }: Props) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [highestStep, setHighestStep] = useState(0);
-  const [done, setDone] = useState(false);
-  // If the session is "upcoming" and we have a real Supabase ID,
-  // show the start gate before allowing the player to run.
+  const [currentStep, setCurrentStep]   = useState(0);
+  const [highestStep, setHighestStep]   = useState(0);
+  const [done, setDone]                 = useState(false);
+  const [confirming, setConfirming]     = useState(false);
   const [showStartGate, setShowStartGate] = useState(
     initialStatus === "upcoming" && !!sessionDbId
   );
+
+  // Fidelity tracking
+  const [fidelityRecords, setFidelityRecords] = useState<StepFidelityRecord[]>([]);
+  const [stepStartedAt, setStepStartedAt]     = useState(() => new Date().toISOString());
+  const [finalScore, setFinalScore]           = useState<number>(100);
+  const [completedCount, setCompletedCount]   = useState(0);
 
   // Restore progress from localStorage on first render
   useEffect(() => {
@@ -231,15 +288,50 @@ export default function SessionPlayer({ session, steps, sessionDbId, initialStat
     if (saved >= steps.length) setDone(true);
   }, [session.id, steps.length]);
 
-  async function handleNext() {
+  // Record when the current step became visible
+  useEffect(() => {
+    setStepStartedAt(new Date().toISOString());
+  }, [currentStep]);
+
+  // Called when facilitator clicks "Next Step →" or "Finish Session"
+  function handleNextClick() {
+    setConfirming(true);
+  }
+
+  // Called when StepConfirmation is submitted
+  async function handleStepConfirmed(outcome: StepOutcome) {
+    const record: StepFidelityRecord = {
+      stepIndex:          currentStep,
+      stepTitle:          steps[currentStep].title,
+      required:           steps[currentStep].required !== false,
+      completed:          outcome.completed,
+      skipped:            !outcome.completed,
+      skipReason:         outcome.skipReason,
+      adaptationNote:     outcome.adaptationNote,
+      sensitiveDiscussion: outcome.sensitiveDiscussion,
+      startedAt:          stepStartedAt,
+      completedAt:        new Date().toISOString(),
+    };
+
+    const newRecords = [...fidelityRecords, record];
+    setFidelityRecords(newRecords);
+    setConfirming(false);
+
     const nextStep = currentStep + 1;
 
     if (nextStep >= steps.length) {
+      // All steps confirmed — compute and save fidelity
+      const score    = computeFidelityScore(newRecords);
+      const numDone  = newRecords.filter((r) => r.completed).length;
+      saveFidelity(session.id, newRecords);
+      setFinalScore(score);
+      setCompletedCount(numDone);
+
       const newHighest = steps.length;
       setHighestStep(newHighest);
       saveProgress(session.id, newHighest);
 
-      // Mark session completed in Supabase when a real session ID is available
+      // Mark session completed in Supabase
       if (sessionDbId) {
         const supabase = getSupabaseClient();
         if (supabase) {
@@ -254,6 +346,7 @@ export default function SessionPlayer({ session, steps, sessionDbId, initialStat
       return;
     }
 
+    // Advance to next step
     const newHighest = Math.max(highestStep, nextStep);
     setHighestStep(newHighest);
     saveProgress(session.id, newHighest);
@@ -261,10 +354,12 @@ export default function SessionPlayer({ session, steps, sessionDbId, initialStat
   }
 
   function handleBack() {
+    setConfirming(false);
     setCurrentStep((s) => Math.max(0, s - 1));
   }
 
-  // Show start gate for upcoming real sessions
+  // ── Render ────────────────────────────────────────────────────────────────
+
   if (showStartGate && sessionDbId) {
     return (
       <StartGate
@@ -276,11 +371,18 @@ export default function SessionPlayer({ session, steps, sessionDbId, initialStat
   }
 
   if (done) {
-    return <CompletionScreen session={session} />;
+    return (
+      <CompletionScreen
+        session={session}
+        fidelityScore={finalScore}
+        completedSteps={completedCount}
+        totalSteps={steps.length}
+      />
+    );
   }
 
-  const step = steps[currentStep];
-  const canGoNext = currentStep <= highestStep;
+  const step       = steps[currentStep];
+  const canGoNext  = currentStep <= highestStep;
   const isLastStep = currentStep === steps.length - 1;
 
   return (
@@ -322,26 +424,35 @@ export default function SessionPlayer({ session, steps, sessionDbId, initialStat
         <FacilitatorNote note={step.facilitatorNote} />
       )}
 
-      {/* Navigation */}
-      <div className="flex gap-3 pt-1">
-        <button
-          onClick={handleBack}
-          disabled={currentStep === 0}
-          className="flex-1 rounded-xl border border-[#EDE4D3] px-4 py-3 text-sm font-medium text-[#1F2937]/60 disabled:opacity-30 hover:bg-[#EDE4D3]/50 transition-colors"
-        >
-          Back
-        </button>
-        <button
-          onClick={handleNext}
-          disabled={!canGoNext}
-          className="flex-[2] rounded-xl bg-[#1F4D3A] px-4 py-3 text-sm font-semibold text-white disabled:opacity-40 hover:bg-[#173d2e] transition-colors"
-        >
-          {isLastStep ? "Finish Session" : "Next Step →"}
-        </button>
-      </div>
+      {/* Navigation or fidelity confirmation */}
+      {confirming ? (
+        <StepConfirmation
+          stepTitle={step.title}
+          isLastStep={isLastStep}
+          onConfirm={handleStepConfirmed}
+          onCancel={() => setConfirming(false)}
+        />
+      ) : (
+        <div className="flex gap-3 pt-1">
+          <button
+            onClick={handleBack}
+            disabled={currentStep === 0}
+            className="flex-1 rounded-xl border border-[#EDE4D3] px-4 py-3 text-sm font-medium text-[#1F2937]/60 disabled:opacity-30 hover:bg-[#EDE4D3]/50 transition-colors"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleNextClick}
+            disabled={!canGoNext}
+            className="flex-[2] rounded-xl bg-[#1F4D3A] px-4 py-3 text-sm font-semibold text-white disabled:opacity-40 hover:bg-[#173d2e] transition-colors"
+          >
+            {isLastStep ? "Finish Session" : "Next Step →"}
+          </button>
+        </div>
+      )}
 
       {/* Locked-step indicator */}
-      {currentStep > highestStep && (
+      {!confirming && currentStep > highestStep && (
         <p className="text-center text-xs text-[#1F2937]/40">
           Complete the previous step to unlock this one.
         </p>

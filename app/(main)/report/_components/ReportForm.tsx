@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Session } from "@/app/_lib/mock-data";
 import { saveReport, syncPendingReports } from "@/app/_lib/reports";
 import { getSupabaseClient } from "@/app/_lib/supabase";
+import { fidelityLabel, fidelityColour } from "@/app/_lib/fidelity";
 // ─── Engagement star picker ───────────────────────────────────────────────────
 
 function StarPicker({
@@ -115,6 +116,7 @@ function SuccessScreen({
 type Props = {
   sessions: Session[];
   preselectedSessionId: string | null;
+  fidelityScore?: number;   // passed from session player via URL param
 };
 
 type FormState = {
@@ -135,7 +137,7 @@ const EMPTY_FORM = (sessionId = ""): FormState => ({
   notes: "",
 });
 
-export default function ReportForm({ sessions, preselectedSessionId }: Props) {
+export default function ReportForm({ sessions, preselectedSessionId, fidelityScore }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<FormState>(
     EMPTY_FORM(preselectedSessionId ?? "")
@@ -182,6 +184,7 @@ export default function ReportForm({ sessions, preselectedSessionId }: Props) {
       highlights: form.highlights.trim(),
       challenges: form.challenges.trim(),
       notes: form.notes.trim(),
+      fidelityScore,
     });
 
     syncPendingReports();
@@ -313,6 +316,22 @@ export default function ReportForm({ sessions, preselectedSessionId }: Props) {
             className={textareaClass}
           />
         </Field>
+
+        {/* Fidelity score — read-only, populated from session player */}
+        {fidelityScore !== undefined && (() => {
+          const { bg, text } = fidelityColour(fidelityScore);
+          return (
+            <div className="flex items-center justify-between rounded-xl border border-[#EDE4D3] bg-[#F8F4EC] px-4 py-3">
+              <div>
+                <p className="text-xs font-medium text-[#1F2937]">Session fidelity</p>
+                <p className="text-xs text-[#1F2937]/40 mt-0.5">Captured automatically from your session</p>
+              </div>
+              <span className={`rounded-full px-3 py-1 text-sm font-semibold ${bg} ${text}`}>
+                {fidelityScore}% · {fidelityLabel(fidelityScore)}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       <button

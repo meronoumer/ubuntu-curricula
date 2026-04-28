@@ -3,15 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/app/_lib/supabase";
-import { MOCK_SESSIONS } from "@/app/_lib/mock-data";
 
-// The curriculum templates available for selection.
-// These map template_id → the steps stored in MOCK_STEPS.
-const TEMPLATES = MOCK_SESSIONS.map((s) => ({
-  id: s.id,
-  title: s.title,
-  description: s.description,
-}));
+const CURRICULUM_TEMPLATES = [
+  {
+    id: "period_foundations",
+    title: "Menstrual Health Basics",
+    description:
+      "An introductory session on puberty, periods, menstrual health, hygiene, and practical support.",
+  },
+  {
+    id: "srh_consent_protection",
+    title: "Healthy Relationships and Consent",
+    description:
+      "A guided session on respect, boundaries, consent, protection, and help-seeking.",
+  },
+];
 
 type FormState = {
   title: string;
@@ -44,7 +50,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       <label className="block text-sm font-medium text-[#1F2937]">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
@@ -56,38 +62,52 @@ function Field({
 
 export default function SessionForm() {
   const router = useRouter();
+
   const [form, setForm] = useState<FormState>(EMPTY);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>(
+    {}
+  );
   const [saving, setSaving] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  function set<K extends keyof FormState>(key: K, value: string) {
+  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
     setErrors((e) => ({ ...e, [key]: undefined }));
   }
 
-  // When a template is selected, auto-fill title and description
   function handleTemplateChange(templateId: string) {
-    const template = TEMPLATES.find((t) => t.id === templateId);
-    set("template_id", templateId);
-    if (template) {
+    const template = CURRICULUM_TEMPLATES.find((t) => t.id === templateId);
+
+    if (!template) {
       setForm((f) => ({
         ...f,
-        template_id: templateId,
-        title: template.title,
-        description: template.description,
+        template_id: "",
       }));
+      return;
     }
+
+    setForm((f) => ({
+      ...f,
+      template_id: templateId,
+      title: template.title,
+      description: template.description,
+    }));
+    setErrors((e) => ({ ...e, template_id: undefined, title: undefined }));
   }
 
   function validate(): boolean {
     const next: typeof errors = {};
+
     if (!form.title.trim()) next.title = "Required.";
     if (!form.date) next.date = "Required.";
     if (!form.location.trim()) next.location = "Required.";
-    if (!form.assigned_to.trim()) next.assigned_to = "Required.";
-    if (!form.assigned_to.includes("@")) next.assigned_to = "Enter a valid email address.";
+    if (!form.assigned_to.trim()) {
+      next.assigned_to = "Required.";
+    } else if (!form.assigned_to.includes("@")) {
+      next.assigned_to = "Enter a valid email address.";
+    }
+
     setErrors(next);
     return Object.keys(next).length === 0;
   }
@@ -108,10 +128,11 @@ export default function SessionForm() {
 
     const { error } = await supabase.from("sessions").insert({
       title: form.title.trim(),
-      description: form.description.trim(),
+      description: form.description.trim() || null,
       date: form.date,
       location: form.location.trim(),
       assigned_to: form.assigned_to.trim().toLowerCase(),
+      facilitator_email: form.assigned_to.trim().toLowerCase(),
       template_id: form.template_id || null,
       status: "upcoming",
     });
@@ -124,33 +145,28 @@ export default function SessionForm() {
 
     setSuccess(true);
     setForm(EMPTY);
-
-    // Refresh the page so the new session appears in the list
     router.refresh();
-
-    // Hide the success message after 3 seconds
     setTimeout(() => setSuccess(false), 3000);
     setSaving(false);
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-[#EDE4D3] p-5">
-      <h2 className="text-sm font-semibold text-[#1F2937] mb-4">Create new session</h2>
+    <div className="rounded-3xl border border-[#EDE4D3] bg-white p-6 sm:p-8 space-y-6">
+      <h2 className="text-xl font-semibold text-[#1F2937]">Create new session</h2>
 
       {serverError && (
-        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {serverError}
         </div>
       )}
+
       {success && (
-        <div className="mb-4 rounded-lg bg-[#1F4D3A]/10 border border-[#1F4D3A]/20 px-3 py-2 text-sm text-[#1F4D3A]">
+        <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
           Session created successfully.
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
-
-        {/* Curriculum template (optional) */}
+      <form onSubmit={handleSubmit} className="space-y-5">
         <Field label="Curriculum template">
           <select
             value={form.template_id}
@@ -158,41 +174,38 @@ export default function SessionForm() {
             className={inputClass}
           >
             <option value="">— Select a template (optional) —</option>
-            {TEMPLATES.map((t) => (
+            {CURRICULUM_TEMPLATES.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.title}
               </option>
             ))}
           </select>
-          <p className="text-xs text-[#1F2937]/40 mt-1">
+          <p className="text-xs text-[#1F2937]/40">
             Selecting a template auto-fills the title and loads step-by-step guidance for facilitators.
           </p>
         </Field>
 
-        {/* Title */}
         <Field label="Session title" required>
           <input
             type="text"
             value={form.title}
             onChange={(e) => set("title", e.target.value)}
-            placeholder="e.g. Ubuntu Philosophy — Cohort 3"
+            placeholder="e.g. Menstrual Health Basics — Cohort 3"
             className={inputClass}
           />
           {errors.title && <p className="text-xs text-red-500 mt-1">{errors.title}</p>}
         </Field>
 
-        {/* Description */}
         <Field label="Description">
           <textarea
-            rows={2}
             value={form.description}
             onChange={(e) => set("description", e.target.value)}
             placeholder="Brief description of this session's focus"
             className={inputClass + " resize-none"}
+            rows={3}
           />
         </Field>
 
-        {/* Date + Location (side by side on larger screens) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Date" required>
             <input
@@ -212,11 +225,12 @@ export default function SessionForm() {
               placeholder="e.g. Community Hall, Nairobi"
               className={inputClass}
             />
-            {errors.location && <p className="text-xs text-red-500 mt-1">{errors.location}</p>}
+            {errors.location && (
+              <p className="text-xs text-red-500 mt-1">{errors.location}</p>
+            )}
           </Field>
         </div>
 
-        {/* Assigned facilitator */}
         <Field label="Assign to facilitator" required>
           <input
             type="email"
@@ -225,13 +239,15 @@ export default function SessionForm() {
             placeholder="facilitator@example.com"
             className={inputClass}
           />
-          {errors.assigned_to && <p className="text-xs text-red-500 mt-1">{errors.assigned_to}</p>}
+          {errors.assigned_to && (
+            <p className="text-xs text-red-500 mt-1">{errors.assigned_to}</p>
+          )}
         </Field>
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-lg px-4 py-3 text-sm font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ backgroundColor: "var(--color-green)" }}
         >
           {saving ? "Creating…" : "Create session"}

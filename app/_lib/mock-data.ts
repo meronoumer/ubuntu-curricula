@@ -154,4 +154,83 @@ export const MOCK_STEPS: Record<string, Step[]> = {
       required: true,
     },
   ],
+    healthy_relationships_consent: [
+    {
+      id: "hrc-1",
+      title: "Welcome, Safety, and Group Agreements",
+      type: "discussion",
+      durationMinutes: 8,
+      content:
+        "Welcome participants and explain that today’s session focuses on healthy relationships, personal boundaries, and consent. Establish group agreements around confidentiality, respect, and listening without judgment.",
+      facilitatorNote:
+        "Set a calm tone. Remind participants they never have to share personal experiences to participate.",
+      required: true,
+    },
+    {
+      id: "hrc-2",
+      title: "What Makes a Relationship Healthy?",
+      type: "instruction",
+      durationMinutes: 10,
+      content:
+        "Introduce key qualities of healthy relationships: respect, honesty, trust, communication, shared decision-making, and safety. Contrast these with unhealthy behaviors like pressure, control, humiliation, and fear.",
+      facilitatorNote:
+        "Keep examples age-appropriate and relevant to friendships, family relationships, and romantic relationships.",
+      required: true,
+    },
+    {
+      id: "hrc-3",
+      title: "Understanding Personal Boundaries",
+      type: "activity",
+      durationMinutes: 12,
+      content:
+        "Guide participants through examples of physical, emotional, and digital boundaries. Ask them to identify what kinds of behavior feel respectful, uncomfortable, or inappropriate in different situations.",
+      facilitatorNote:
+        "Encourage discussion of boundaries in everyday settings like school, home, and online spaces.",
+      required: true,
+    },
+    {
+      id: "hrc-4",
+      title: "What Is Consent?",
+      type: "instruction",
+      durationMinutes: 12,
+      content:
+        "Explain that consent means a clear, voluntary, informed, and ongoing yes. Emphasize that silence is not consent, pressure is not consent, and someone can change their mind at any time.",
+      facilitatorNote:
+        "Use simple language. Reinforce that consent applies to touch, intimacy, and sharing images or personal information.",
+      required: true,
+    },
+    {
+      id: "hrc-5",
+      title: "Scenarios: Respect, Pressure, or Consent?",
+      type: "activity",
+      durationMinutes: 15,
+      content:
+        "Present short scenarios and ask participants to decide whether each situation shows respect, pressure, or consent. Discuss why. Include examples involving peer pressure, gossip, unwanted touch, and digital communication.",
+      facilitatorNote:
+        "Make this interactive, but avoid pressuring students to speak if they seem hesitant. Anonymous responses are okay.",
+      required: true,
+    },
+    {
+      id: "hrc-6",
+      title: "Asking for Help and Supporting Others",
+      type: "discussion",
+      durationMinutes: 10,
+      content:
+        "Discuss trusted adults, school support systems, health workers, and community resources participants can turn to if they feel unsafe, pressured, or confused. Emphasize that asking for help is a strength, not a weakness.",
+      facilitatorNote:
+        "Be prepared with specific local examples if possible, such as teachers, counselors, nurses, or youth mentors.",
+      required: true,
+    },
+    {
+      id: "hrc-7",
+      title: "Reflection and Takeaway",
+      type: "reflection",
+      durationMinutes: 8,
+      content:
+        "Invite participants to reflect on one thing they learned about healthy relationships, boundaries, or consent. Close by reinforcing that everyone deserves respect, safety, and the right to make informed choices about their own body.",
+      facilitatorNote:
+        "End with reassurance and a reminder that students can continue asking questions after the session.",
+      required: true,
+    },
+  ],
 };
